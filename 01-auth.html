@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRE Verbal Mastery Trainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF7F2;
+      --cream-dark: #F0EAE0;
+      --gold: #C9A84C;
+      --gold-light: #E2C47A;
+      --gold-dim: rgba(201,168,76,0.15);
+      --ink: #1A1612;
+      --ink-soft: #4A3F35;
+      --ink-muted: #8A7968;
+      --error: #C0392B;
+      --success: #27AE60;
+      --radius: 10px;
+      --shadow: 0 4px 24px rgba(26,22,18,0.08);
+    }
+
+    body {
+      background: var(--cream);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container { width: 100%; max-width: 440px; }
+
+    .brand { text-align: center; margin-bottom: 36px; }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px; height: 52px;
+      background: var(--gold);
+      border-radius: 14px;
+      margin-bottom: 14px;
+    }
+
+    .brand-mark svg { width: 28px; height: 28px; fill: none; stroke: var(--cream); stroke-width: 2; }
+
+    .brand h1 { font-family: 'DM Serif Display', serif; font-size: 1.7rem; color: var(--ink); line-height: 1.2; }
+    .brand p { font-size: 0.85rem; color: var(--ink-muted); margin-top: 6px; letter-spacing: 0.02em; }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 36px 32px;
+      border: 1px solid var(--cream-dark);
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      flex: 1; padding: 9px; text-align: center;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--ink-muted); cursor: pointer;
+      border-radius: 6px; transition: all 0.2s;
+      border: none; background: none;
+    }
+
+    .tab.active {
+      background: #fff; color: var(--ink);
+      box-shadow: 0 1px 6px rgba(26,22,18,0.1);
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: var(--ink-soft); margin-bottom: 7px;
+      letter-spacing: 0.03em; text-transform: uppercase;
+    }
+
+    input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: var(--radius);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem; color: var(--ink);
+      background: var(--cream); transition: border-color 0.2s; outline: none;
+    }
+
+    input:focus { border-color: var(--gold); background: #fff; }
+    input::placeholder { color: var(--ink-muted); }
+
+    .role-selector { display: flex; gap: 10px; margin-bottom: 18px; }
+
+    .role-option {
+      flex: 1; border: 1.5px solid var(--cream-dark);
+      border-radius: var(--radius); padding: 12px 10px;
+      cursor: pointer; text-align: center; transition: all 0.2s; background: var(--cream);
+    }
+
+    .role-option:hover { border-color: var(--gold-light); }
+    .role-option.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .role-option .role-icon { font-size: 1.3rem; margin-bottom: 4px; }
+    .role-option .role-label { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); }
+    .role-option.selected .role-label { color: var(--gold); }
+
+    .btn {
+      width: 100%; padding: 13px;
+      background: var(--gold); color: var(--cream);
+      border: none; border-radius: var(--radius);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 6px;
+    }
+
+    .btn:hover { background: var(--gold-light); }
+    .btn:active { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .message {
+      margin-top: 14px; padding: 11px 14px;
+      border-radius: var(--radius); font-size: 0.84rem; display: none;
+    }
+
+    .message.error { background: #FDF0EE; color: var(--error); border: 1px solid #F5C6C0; display: block; }
+    .message.success { background: #EEF8F2; color: var(--success); border: 1px solid #C0E8D0; display: block; }
+
+    .footer-note { text-align: center; margin-top: 20px; font-size: 0.78rem; color: var(--ink-muted); }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #dashboard { display: none; text-align: center; }
+
+    .dashboard-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: var(--shadow); padding: 40px 32px;
+      border: 1px solid var(--cream-dark);
+    }
+
+    .dashboard-card h2 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 8px; }
+    .dashboard-card p { color: var(--ink-muted); font-size: 0.88rem; margin-bottom: 24px; }
+
+    .role-badge {
+      display: inline-block; padding: 4px 12px;
+      background: var(--gold-dim); color: var(--gold);
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .btn-outline {
+      display: inline-block; padding: 10px 24px;
+      background: transparent; color: var(--ink-soft);
+      border: 1.5px solid var(--cream-dark); border-radius: var(--radius);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<div class="container" id="auth-container">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <h1>Verbal Mastery Trainer</h1>
+    <p>GRE 170V — one concept at a time</p>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tab-login">Sign In</button>
+      <button class="tab" id="tab-signup">Create Account</button>
+    </div>
+
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" />
+      </div>
+      <button class="btn" id="btn-login">Sign In</button>
+      <div class="message" id="login-msg"></div>
+    </div>
+
+    <div id="signup-form" style="display:none;">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="signup-name" placeholder="Your name" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signup-password" placeholder="Min. 8 characters" />
+      </div>
+
+      <label style="margin-bottom:10px;display:block;">I am a</label>
+      <div class="role-selector">
+        <div class="role-option selected" id="role-student">
+          <div class="role-icon">📘</div>
+          <div class="role-label">Student</div>
+        </div>
+        <div class="role-option" id="role-tutor">
+          <div class="role-icon">🎓</div>
+          <div class="role-label">Tutor</div>
+        </div>
+      </div>
+
+      <button class="btn" id="btn-signup">Create Account</button>
+      <div class="message" id="signup-msg"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">GRE Verbal Mastery Trainer · Built for precision, not volume</div>
+</div>
+
+<div class="container" id="dashboard">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="dashboard-card">
+    <div class="role-badge" id="role-badge">Student</div>
+    <h2>Welcome back, <span id="user-name">—</span></h2>
+    <p>Your training dashboard is loading. Stage 2 coming next.</p>
+    <button class="btn-outline" id="btn-logout">Sign Out</button>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+  const SUPABASE_URL = 'https://fnkaihtzzddpeprrutjsv.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZua2FpaHR6emRkcGVwcnV0anN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzY2NDksImV4cCI6MjA5ODUxMjY0OX0.2NO7bwJY45ylEryJw0Zwa7ty-Nl6L61UoitgW87iiQc';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let selectedRole = 'student';
+  let currentUser = null;
+
+  // ── Helpers ───────────────────────────────────────────────
+  function showMessage(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = `message ${type}`;
+  }
+
+  function clearMessages() {
+    document.querySelectorAll('.message').forEach(m => {
+      m.className = 'message'; m.textContent = '';
+    });
+  }
+
+  function setLoading(btn, loading, label) {
+    btn.disabled = loading;
+    btn.innerHTML = loading ? '<span class="spinner"></span>Please wait…' : label;
+  }
+
+  // ── Tabs ──────────────────────────────────────────────────
+  document.getElementById('tab-login').addEventListener('click', () => {
+    document.getElementById('tab-login').classList.add('active');
+    document.getElementById('tab-signup').classList.remove('active');
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('signup-form').style.display = 'none';
+    clearMessages();
+  });
+
+  document.getElementById('tab-signup').addEventListener('click', () => {
+    document.getElementById('tab-signup').classList.add('active');
+    document.getElementById('tab-login').classList.remove('active');
+    document.getElementById('signup-form').style.display = 'block';
+    document.getElementById('login-form').style.display = 'none';
+    clearMessages();
+  });
+
+  // ── Role selector ─────────────────────────────────────────
+  document.getElementById('role-student').addEventListener('click', () => {
+    selectedRole = 'student';
+    document.getElementById('role-student').classList.add('selected');
+    document.getElementById('role-tutor').classList.remove('selected');
+  });
+
+  document.getElementById('role-tutor').addEventListener('click', () => {
+    selectedRole = 'tutor';
+    document.getElementById('role-tutor').classList.add('selected');
+    document.getElementById('role-student').classList.remove('selected');
+  });
+
+  // ── Login ─────────────────────────────────────────────────
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('btn-login');
+
+    if (!email || !password) return showMessage('login-msg', 'Please fill in all fields.', 'error');
+
+    setLoading(btn, true, 'Sign In');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(btn, false, 'Sign In');
+
+    if (error) return showMessage('login-msg', error.message, 'error');
+    await loadDashboard(data.user);
+  });
+
+  // ── Signup ────────────────────────────────────────────────
+  document.getElementById('btn-signup').addEventListener('click', async () => {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const btn = document.getElementById('btn-signup');
+
+    if (!name || !email || !password) return showMessage('signup-msg', 'Please fill in all fields.', 'error');
+    if (password.length < 8) return showMessage('signup-msg', 'Password must be at least 8 characters.', 'error');
+
+    setLoading(btn, true, 'Create Account');
+
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name: name, role: selectedRole } }
+    });
+
+    if (error) { setLoading(btn, false, 'Create Account'); return showMessage('signup-msg', error.message, 'error'); }
+
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id, full_name: name, email, role: selectedRole
+      });
+    }
+
+    setLoading(btn, false, 'Create Account');
+    showMessage('signup-msg', 'Account created! Check your email to confirm, then sign in.', 'success');
+  });
+
+  // ── Logout ────────────────────────────────────────────────
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('auth-container').style.display = 'block';
+    currentUser = null;
+  });
+
+  // ── Dashboard ─────────────────────────────────────────────
+  async function loadDashboard(user) {
+    currentUser = user;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, role')
+      .eq('id', user.id)
+      .single();
+
+    const name = profile?.full_name || user.email;
+    const role = profile?.role || 'student';
+
+    document.getElementById('user-name').textContent = name.split(' ')[0];
+    document.getElementById('role-badge').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  // ── Session persistence ───────────────────────────────────
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user && !currentUser) {
+      await loadDashboard(session.user);
+    }
+  });
+</script>
+</body>
+</html>
