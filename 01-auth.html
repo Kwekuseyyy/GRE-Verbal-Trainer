@@ -104,7 +104,7 @@
 <script>
   const SUPABASE_URL = 'https://fnkaihtzzddpeprrutjsv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZua2FpaHR6emRkcGVwcnV0anN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzY2NDksImV4cCI6MjA5ODUxMjY0OX0.2NO7bwJY45ylEryJw0Zwa7ty-Nl6L61UoitgW87iiQc';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   document.addEventListener('DOMContentLoaded', function() {
   let selectedRole = 'student';
@@ -159,7 +159,7 @@
     const btn = document.getElementById('btn-login');
     if (!email || !password) return showMessage('login-msg', 'Please fill in all fields.', 'error');
     setLoading(btn, true, 'Sign In');
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
     setLoading(btn, false, 'Sign In');
     if (error) return showMessage('login-msg', error.message, 'error');
     await loadDashboard(data.user);
@@ -173,20 +173,20 @@
     if (!name || !email || !password) return showMessage('signup-msg', 'Please fill in all fields.', 'error');
     if (password.length < 8) return showMessage('signup-msg', 'Password must be at least 8 characters.', 'error');
     setLoading(btn, true, 'Create Account');
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await sbClient.auth.signUp({
       email, password,
       options: { data: { full_name: name, role: selectedRole } }
     });
     if (error) { setLoading(btn, false, 'Create Account'); return showMessage('signup-msg', error.message, 'error'); }
     if (data.user) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, email, role: selectedRole });
+      await sbClient.from('profiles').upsert({ id: data.user.id, full_name: name, email, role: selectedRole });
     }
     setLoading(btn, false, 'Create Account');
     showMessage('signup-msg', 'Account created! Check your email to confirm, then sign in.', 'success');
   });
 
   document.getElementById('btn-logout').addEventListener('click', async function() {
-    await supabase.auth.signOut();
+    await sbClient.auth.signOut();
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('auth-container').style.display = 'block';
     currentUser = null;
@@ -194,7 +194,7 @@
 
   async function loadDashboard(user) {
     currentUser = user;
-    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
+    const { data: profile } = await sbClient.from('profiles').select('full_name, role').eq('id', user.id).single();
     const name = profile ? profile.full_name : user.email;
     const role = profile ? profile.role : 'student';
     document.getElementById('user-name').textContent = name.split(' ')[0];
@@ -203,7 +203,7 @@
     document.getElementById('dashboard').style.display = 'block';
   }
 
-  supabase.auth.onAuthStateChange(async function(event, session) {
+  sbClient.auth.onAuthStateChange(async function(event, session) {
     if (session && session.user && !currentUser) {
       await loadDashboard(session.user);
     }
