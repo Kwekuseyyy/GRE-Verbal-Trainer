@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRE Verbal Mastery Trainer — Error Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2; --cream-dark: #F0EAE0; --cream-mid: #E8E0D4;
+      --gold: #C9A84C; --gold-light: #E2C47A; --gold-dim: rgba(201,168,76,0.12);
+      --ink: #1A1612; --ink-soft: #4A3F35; --ink-muted: #8A7968;
+      --error: #C0392B; --success: #27AE60; --warning: #E67E22;
+      --radius: 10px; --shadow: 0 4px 24px rgba(26,22,18,0.08);
+      --shadow-lg: 0 8px 40px rgba(26,22,18,0.12);
+    }
+    body {
+      background: var(--cream);
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink); min-height: 100vh; padding: 0;
+    }
+
+    /* Nav */
+    .nav {
+      background: var(--ink); padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-mark {
+      width: 32px; height: 32px; background: var(--gold);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-mark svg { width: 18px; height: 18px; fill: none; stroke: var(--cream); stroke-width: 2; }
+    .nav-title { font-family: "DM Serif Display", serif; font-size: 1rem; color: var(--cream); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link {
+      padding: 7px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--ink-muted);
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: var(--cream); }
+    .nav-link.active { background: var(--gold-dim); color: var(--gold); }
+
+    /* Layout */
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .page-header { margin-bottom: 36px; }
+    .page-eyebrow { font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .page-title { font-family: "DM Serif Display", serif; font-size: 2rem; color: var(--ink); line-height: 1.2; }
+    .page-sub { font-size: 0.9rem; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+    /* Upload card */
+    .upload-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: var(--shadow); border: 1px solid var(--cream-dark);
+      overflow: hidden; margin-bottom: 32px;
+    }
+
+    .upload-card-header {
+      padding: 20px 28px; border-bottom: 1px solid var(--cream-dark);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .step-badge {
+      width: 28px; height: 28px; background: var(--gold);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: var(--cream); flex-shrink: 0;
+    }
+    .upload-card-header h3 { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+    .upload-card-header p { font-size: 0.8rem; color: var(--ink-muted); margin-top: 2px; }
+
+    .upload-card-body { padding: 28px; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed var(--cream-mid); border-radius: 12px;
+      padding: 40px 24px; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: var(--cream); position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover { border-color: var(--gold); background: var(--gold-dim); }
+    .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .drop-icon { font-size: 2rem; margin-bottom: 12px; }
+    .drop-label { font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+    .drop-sub { font-size: 0.78rem; color: var(--ink-muted); }
+    .drop-hint { font-size: 0.72rem; color: var(--gold); margin-top: 8px; font-weight: 600; }
+
+    /* Preview */
+    .preview-wrap { display: none; position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--cream-dark); }
+    .preview-wrap img { width: 100%; max-height: 320px; object-fit: contain; background: var(--cream); display: block; }
+    .preview-remove {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(26,22,18,0.7); color: #fff; border: none;
+      border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .preview-remove:hover { background: var(--error); }
+
+    /* Divider */
+    .section-divider { height: 1px; background: var(--cream-dark); margin: 24px 0; }
+
+    /* Reasoning */
+    .field-label {
+      font-size: 0.78rem; font-weight: 600; color: var(--ink-soft);
+      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; display: block;
+    }
+    .field-hint { font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 10px; }
+
+    textarea {
+      width: 100%; padding: 14px; border: 1.5px solid var(--cream-dark);
+      border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.88rem; color: var(--ink); background: var(--cream);
+      resize: vertical; min-height: 110px; outline: none; transition: border-color 0.2s; line-height: 1.6;
+    }
+    textarea:focus { border-color: var(--gold); background: #fff; }
+    textarea::placeholder { color: var(--ink-muted); }
+
+    /* Error type */
+    .error-types { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .error-chip {
+      padding: 6px 14px; border: 1.5px solid var(--cream-dark);
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600; color: var(--ink-muted);
+      cursor: pointer; transition: all 0.2s; background: var(--cream); user-select: none;
+    }
+    .error-chip:hover { border-color: var(--gold-light); color: var(--ink); }
+    .error-chip.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+
+    /* Submit */
+    .submit-row { display: flex; gap: 12px; align-items: center; margin-top: 24px; }
+    .btn-primary {
+      padding: 13px 28px; background: var(--gold); color: var(--cream);
+      border: none; border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .submit-note { font-size: 0.78rem; color: var(--ink-muted); }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      margin-right: 8px; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Result card */
+    .result-card {
+      background: #fff; border-radius: 16px; box-shadow: var(--shadow-lg);
+      border: 1px solid var(--cream-dark); overflow: hidden; display: none;
+      margin-bottom: 32px; animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-header {
+      padding: 20px 28px; background: var(--ink); 
+      display: flex; align-items: center; gap: 12px;
+    }
+    .result-header h3 { font-family: "DM Serif Display", serif; font-size: 1.1rem; color: var(--cream); }
+    .result-badge {
+      padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-left: auto;
+    }
+    .result-badge.diagnosed { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+
+    .result-body { padding: 28px; }
+
+    .result-section { margin-bottom: 24px; }
+    .result-section:last-child { margin-bottom: 0; }
+    .result-section-label {
+      font-size: 0.72rem; font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+    }
+    .result-section-content {
+      font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7;
+      background: var(--cream); border-radius: 8px; padding: 14px 16px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .concept-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .concept-tag {
+      padding: 5px 12px; background: var(--gold-dim); color: var(--gold);
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid rgba(201,168,76,0.3);
+    }
+
+    .severity-bar { display: flex; gap: 6px; margin-top: 6px; }
+    .severity-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cream-mid); }
+    .severity-dot.active { background: var(--gold); }
+    .severity-label { font-size: 0.78rem; color: var(--ink-muted); margin-left: 4px; }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--cream-dark); }
+    .btn-secondary {
+      padding: 10px 20px; background: transparent; color: var(--ink-soft);
+      border: 1.5px solid var(--cream-dark); border-radius: var(--radius);
+      font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Log history */
+    .log-section { margin-top: 48px; }
+    .log-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .log-section-title { font-family: "DM Serif Display", serif; font-size: 1.3rem; color: var(--ink); }
+    .log-count { font-size: 0.78rem; color: var(--ink-muted); font-weight: 600; }
+
+    .log-empty {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 48px 24px; text-align: center; color: var(--ink-muted); font-size: 0.88rem;
+    }
+    .log-empty-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.5; }
+
+    .log-item {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 20px 24px; margin-bottom: 12px; cursor: pointer;
+      transition: all 0.2s; display: flex; gap: 16px; align-items: flex-start;
+    }
+    .log-item:hover { border-color: var(--gold-light); box-shadow: var(--shadow); }
+    .log-item-thumb {
+      width: 60px; height: 50px; border-radius: 6px; overflow: hidden;
+      flex-shrink: 0; background: var(--cream-dark);
+    }
+    .log-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .log-item-body { flex: 1; min-width: 0; }
+    .log-item-concept { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .log-item-error { font-size: 0.88rem; color: var(--ink); font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .log-item-date { font-size: 0.75rem; color: var(--ink-muted); }
+    .log-item-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .mastery-pill {
+      padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
+    }
+    .mastery-pill.weak { background: #FDF0EE; color: var(--error); }
+    .mastery-pill.developing { background: #FEF9EE; color: var(--warning); }
+    .mastery-pill.strong { background: #EEF8F2; color: var(--success); }
+
+    .footer-note { text-align: center; margin-top: 48px; font-size: 0.75rem; color: var(--ink-muted); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <div class="nav-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="nav-title">Verbal Mastery Trainer</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-log">Error Log</button>
+    <button class="nav-link" id="nav-profile">Weakness Profile</button>
+    <button class="nav-link" id="nav-practice">Practice</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-eyebrow">Error Analysis</div>
+    <h1 class="page-title">Log a Missed Question</h1>
+    <p class="page-sub">Upload a screenshot of the question you struggled with, describe your reasoning, and Claude will diagnose exactly what went wrong.</p>
+  </div>
+
+  <!-- Upload Card -->
+  <div class="upload-card">
+    <div class="upload-card-header">
+      <div class="step-badge">1</div>
+      <div>
+        <h3>Upload your screenshot</h3>
+        <p>Any GRE Verbal question — TC, SE, RC, or CR</p>
+      </div>
+    </div>
+    <div class="upload-card-body">
+      <!-- Drop zone -->
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="image/*" />
+        <div class="drop-icon">📸</div>
+        <div class="drop-label">Drop your screenshot here</div>
+        <div class="drop-sub">or click to browse</div>
+        <div class="drop-hint">PNG, JPG, WEBP supported</div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-wrap" id="preview-wrap">
+        <img id="preview-img" src="" alt="Question screenshot" />
+        <button class="preview-remove" id="preview-remove">✕ Remove</button>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Reasoning -->
+      <div>
+        <div class="upload-card-header" style="padding:0 0 16px 0; border-bottom:none;">
+          <div class="step-badge">2</div>
+          <div>
+            <h3>Describe your reasoning</h3>
+            <p>What were you thinking? What made you pick your answer?</p>
+          </div>
+        </div>
+
+        <textarea id="reasoning" placeholder="e.g. I thought the blank needed a word meaning 'to increase' so I picked augment, but I was unsure between augment and bolster. The second blank confused me because both options seemed to fit the context..."></textarea>
+
+        <div style="margin-top: 16px;">
+          <span class="field-label">What type of error do you think this was?</span>
+          <div class="error-types" id="error-types">
+            <div class="error-chip" data-type="vocabulary">Vocabulary gap</div>
+            <div class="error-chip" data-type="two-answers">Trapped between two answers</div>
+            <div class="error-chip" data-type="misread">Misread the question</div>
+            <div class="error-chip" data-type="logic">Faulty logic</div>
+            <div class="error-chip" data-type="tone">Missed tone/direction</div>
+            <div class="error-chip" data-type="passage">Passage comprehension</div>
+            <div class="error-chip" data-type="unsure">Not sure</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-primary" id="btn-analyze">Analyze Question</button>
+        <span class="submit-note">Claude will extract the question and diagnose your error</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Card -->
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <h3>Diagnosis</h3>
+      <span class="result-badge diagnosed">Complete</span>
+    </div>
+    <div class="result-body" id="result-body"></div>
+  </div>
+
+  <!-- Log History -->
+  <div class="log-section">
+    <div class="log-section-header">
+      <h2 class="log-section-title">Error Log</h2>
+      <span class="log-count" id="log-count">0 entries</span>
+    </div>
+    <div id="log-list">
+      <div class="log-empty">
+        <div class="log-empty-icon">📋</div>
+        No errors logged yet. Upload your first question above.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">GRE Verbal Mastery Trainer · Built for precision, not volume</div>
+</div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────
+  let uploadedFile = null;
+  let uploadedDataURL = null;
+  let selectedErrorType = null;
+  let errorLog = JSON.parse(localStorage.getItem('gvmt_error_log') || '[]');
+
+  // ── File upload ───────────────────────────────────────────
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const previewWrap = document.getElementById('preview-wrap');
+  const previewImg = document.getElementById('preview-img');
+
+  fileInput.addEventListener('change', function() {
+    if (this.files[0]) handleFile(this.files[0]);
+  });
+
+  dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', function() {
+    this.classList.remove('dragover');
+  });
+
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  document.getElementById('preview-remove').addEventListener('click', function() {
+    uploadedFile = null;
+    uploadedDataURL = null;
+    fileInput.value = '';
+    previewWrap.style.display = 'none';
+    dropZone.style.display = 'block';
+  });
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) return;
+    uploadedFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedDataURL = e.target.result;
+      previewImg.src = uploadedDataURL;
+      dropZone.style.display = 'none';
+      previewWrap.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── Error type chips ──────────────────────────────────────
+  document.querySelectorAll('.error-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.error-chip').forEach(function(c) { c.classList.remove('selected'); });
+      this.classList.add('selected');
+      selectedErrorType = this.dataset.type;
+    });
+  });
+
+  // ── Analyze ───────────────────────────────────────────────
+  document.getElementById('btn-analyze').addEventListener('click', async function() {
+    if (!uploadedDataURL) return showToast('Please upload a screenshot first.', 'error');
+    const reasoning = document.getElementById('reasoning').value.trim();
+    if (!reasoning) return showToast('Please describe your reasoning.', 'error');
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+
+    try {
+      const base64 = uploadedDataURL.split(',')[1];
+      const mediaType = uploadedFile.type;
+
+      const prompt = `You are an expert GRE Verbal tutor. Analyze this GRE Verbal question screenshot and the student's reasoning.
+
+Student's reasoning: "${reasoning}"
+Student's self-identified error type: "${selectedErrorType || 'not specified'}"
+
+Please provide a structured diagnosis in this EXACT JSON format (no markdown, no backticks, just raw JSON):
+{
+  "question_type": "TC/SE/RC/CR",
+  "question_summary": "Brief description of what the question was asking (1-2 sentences)",
+  "correct_answer": "The correct answer and why it is correct",
+  "student_error": "Precise description of what went wrong in the student's reasoning",
+  "error_category": "One of: Vocabulary Gap / Trapped Between Choices / Misread Direction / Logic Error / Tone Mismatch / Passage Misread / Structural Error",
+  "root_cause": "The deeper reasoning principle the student is missing",
+  "decision_rule": "A transferable rule the student can apply to every future question of this type",
+  "concepts": ["concept1", "concept2"],
+  "severity": 1-3
+}`;
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: prompt }
+            ]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const text = data.content[0].text.trim();
+      const cleaned = text.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(cleaned);
+
+      // Save to log
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+        thumbnail: uploadedDataURL,
+        reasoning,
+        errorType: selectedErrorType,
+        diagnosis: result
+      };
+      errorLog.unshift(entry);
+      localStorage.setItem('gvmt_error_log', JSON.stringify(errorLog));
+
+      showResult(result);
+      renderLog();
+
+    } catch (err) {
+      showToast('Analysis failed. Please try again.', 'error');
+      console.error(err);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Analyze Question';
+  });
+
+  // ── Show result ───────────────────────────────────────────
+  function showResult(r) {
+    const severityDots = [1,2,3].map(function(i) {
+      return '<div class="severity-dot' + (i <= r.severity ? ' active' : '') + '"></div>';
+    }).join('');
+
+    const concepts = (r.concepts || []).map(function(c) {
+      return '<span class="concept-tag">' + c + '</span>';
+    }).join('');
+
+    document.getElementById('result-body').innerHTML =
+      '<div class="result-section">' +
+        '<div class="result-section-label">Question Type</div>' +
+        '<div class="result-section-content">' + r.question_type + ' — ' + r.question_summary + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">Correct Answer</div>' +
+        '<div class="result-section-content">' + r.correct_answer + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">What Went Wrong</div>' +
+        '<div class="result-section-content">' + r.student_error + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">Root Cause</div>' +
+        '<div class="result-section-content">' + r.root_cause + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">Decision Rule — Apply This Every Time</div>' +
+        '<div class="result-section-content" style="border-left-color: var(--ink); font-weight: 600;">' + r.decision_rule + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">Concepts Tested</div>' +
+        '<div class="concept-tags">' + concepts + '</div>' +
+      '</div>' +
+      '<div class="result-section">' +
+        '<div class="result-section-label">Error Severity</div>' +
+        '<div class="severity-bar">' + severityDots + '<span class="severity-label">' + ['', 'Minor slip', 'Recurring gap', 'Core weakness'][r.severity] + '</span></div>' +
+      '</div>' +
+      '<div class="result-actions">' +
+        '<button class="btn-secondary" onclick="resetForm()">Log Another</button>' +
+        '<button class="btn-secondary" onclick="scrollToLog()">View Log</button>' +
+      '</div>';
+
+    const card = document.getElementById('result-card');
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Log rendering ─────────────────────────────────────────
+  function renderLog() {
+    const list = document.getElementById('log-list');
+    document.getElementById('log-count').textContent = errorLog.length + ' ' + (errorLog.length === 1 ? 'entry' : 'entries');
+
+    if (errorLog.length === 0) {
+      list.innerHTML = '<div class="log-empty"><div class="log-empty-icon">📋</div>No errors logged yet. Upload your first question above.</div>';
+      return;
+    }
+
+    list.innerHTML = errorLog.map(function(entry) {
+      const d = entry.diagnosis;
+      const severity = d.severity || 1;
+      const pillClass = severity === 3 ? 'weak' : severity === 2 ? 'developing' : 'strong';
+      const pillLabel = severity === 3 ? 'Core weakness' : severity === 2 ? 'Recurring gap' : 'Minor slip';
+      const thumb = entry.thumbnail ? '<img src="' + entry.thumbnail + '" alt="" />' : '';
+      return '<div class="log-item" onclick="expandEntry(' + entry.id + ')">' +
+        '<div class="log-item-thumb">' + thumb + '</div>' +
+        '<div class="log-item-body">' +
+          '<div class="log-item-concept">' + (d.question_type || '') + ' · ' + (d.error_category || '') + '</div>' +
+          '<div class="log-item-error">' + (d.decision_rule || d.student_error || '') + '</div>' +
+          '<div class="log-item-date">' + entry.date + '</div>' +
+        '</div>' +
+        '<div class="log-item-meta"><span class="mastery-pill ' + pillClass + '">' + pillLabel + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function resetForm() {
+    uploadedFile = null;
+    uploadedDataURL = null;
+    selectedErrorType = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('reasoning').value = '';
+    document.querySelectorAll('.error-chip').forEach(function(c) { c.classList.remove('selected'); });
+    previewWrap.style.display = 'none';
+    dropZone.style.display = 'block';
+    document.getElementById('result-card').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollToLog() {
+    document.querySelector('.log-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function expandEntry(id) {
+    const entry = errorLog.find(function(e) { return e.id === id; });
+    if (!entry) return;
+    showResult(entry.diagnosis);
+    document.getElementById('result-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function showToast(msg, type) {
+    alert(msg);
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  renderLog();
+</script>
+</body>
+</html>
