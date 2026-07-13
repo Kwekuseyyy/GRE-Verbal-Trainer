@@ -117,14 +117,14 @@ function buildConceptData() {
     var d = entry.diagnosis;
     if (!d || !d.concepts) return;
     d.concepts.forEach(function(c) {
-      if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0, qtype: d.question_type || "RC" };
+      if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0 };
       concepts[c].errors++;
     });
   });
   practiceLog.forEach(function(entry) {
     var c = entry.concept;
     if (!c) return;
-    if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0, qtype: entry.qtype || "RC" };
+    if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0 };
     concepts[c].practiced++;
     if (entry.correct) concepts[c].correct++;
   });
@@ -145,19 +145,24 @@ function getAccuracyText(data) {
   return Math.round((data.correct / data.practiced) * 100) + "% accuracy";
 }
 
+function h(tag, cls, content) {
+  return "<" + tag + (cls ? " class=\"" + cls + "\"" : "") + ">" + content + "</" + tag + ">";
+}
+
 function render() {
   var concepts = buildConceptData();
   var keys = Object.keys(concepts);
+  var statsEl = document.getElementById("stats-row");
+  var listEl = document.getElementById("concept-list");
 
   if (keys.length === 0) {
-    document.getElementById("stats-row").innerHTML = "";
-    document.getElementById("concept-list").innerHTML =
-      "<div class="empty-state">" +
-        "<div class="empty-icon">&#127981;</div>" +
-        "<div class="empty-title">No data yet</div>" +
-        "<p class="empty-sub">Log missed questions and practice to build your mastery profile.</p>" +
-        "<a class="btn-primary" href="02-error-log.html">Log a Question</a>" +
-      "</div>";
+    statsEl.innerHTML = "";
+    listEl.innerHTML = h("div", "empty-state",
+      h("div", "empty-icon", "&#127981;") +
+      h("div", "empty-title", "No data yet") +
+      h("p", "empty-sub", "Log missed questions and practice to build your mastery profile.") +
+      '<a class="btn-primary" href="02-error-log.html">Log a Question</a>'
+    );
     return;
   }
 
@@ -167,11 +172,11 @@ function render() {
   var totalCorrect = practiceLog.filter(function(e) { return e.correct; }).length;
   var overallAcc = totalPracticed > 0 ? Math.round((totalCorrect / totalPracticed) * 100) : 0;
 
-  document.getElementById("stats-row").innerHTML =
-    "<div class="stat-card"><div class="stat-number gold">" + totalConcepts + "</div><div class="stat-label">Concepts Tracked</div></div>" +
-    "<div class="stat-card"><div class="stat-number green">" + masteredCount + "</div><div class="stat-label">Mastered</div></div>" +
-    "<div class="stat-card"><div class="stat-number">" + totalPracticed + "</div><div class="stat-label">Questions Practiced</div></div>" +
-    "<div class="stat-card"><div class="stat-number gold">" + (totalPracticed > 0 ? overallAcc + "%" : "-") + "</div><div class="stat-label">Overall Accuracy</div></div>";
+  statsEl.innerHTML =
+    h("div", "stat-card", h("div", "stat-number gold", totalConcepts) + h("div", "stat-label", "Concepts Tracked")) +
+    h("div", "stat-card", h("div", "stat-number green", masteredCount) + h("div", "stat-label", "Mastered")) +
+    h("div", "stat-card", h("div", "stat-number", totalPracticed) + h("div", "stat-label", "Questions Practiced")) +
+    h("div", "stat-card", h("div", "stat-number gold", totalPracticed > 0 ? overallAcc + "%" : "-") + h("div", "stat-label", "Overall Accuracy"));
 
   keys.sort(function(a, b) {
     var aMastered = mastered.indexOf(a) >= 0;
@@ -187,38 +192,40 @@ function render() {
   });
 
   if (filtered.length === 0) {
-    document.getElementById("concept-list").innerHTML =
-      "<div class="empty-state"><div class="empty-icon">&#128269;</div><div class="empty-title">No concepts in this category</div></div>";
+    listEl.innerHTML = h("div", "empty-state",
+      h("div", "empty-icon", "&#128269;") +
+      h("div", "empty-title", "No concepts in this category")
+    );
     return;
   }
 
-  document.getElementById("concept-list").innerHTML = filtered.map(function(k) {
+  listEl.innerHTML = filtered.map(function(k) {
     var data = concepts[k];
     var isMastered = mastered.indexOf(k) >= 0;
     var status = getStatus(data, isMastered);
     var acc = data.practiced > 0 ? Math.round((data.correct / data.practiced) * 100) : 0;
     var barWidth = data.practiced > 0 ? acc : 0;
     var actionBtn = isMastered
-      ? "<button class="btn-unmaster" data-concept="" + k + "">Reactivate</button>"
-      : (status === "strong" ? "<button class="btn-master" data-concept="" + k + "">Mark Mastered</button>" : "");
-    return "<div class="concept-card" + (isMastered ? " mastered" : "") + "">" +
-      "<div class="concept-card-top">" +
-        "<span class="concept-name">" + k + "</span>" +
-        "<div class="concept-meta">" +
-          "<span class="accuracy-text">" + getAccuracyText(data) + "</span>" +
-          "<span class="status-badge " + status + "">" + status + "</span>" +
-        "</div>" +
-      "</div>" +
-      "<div class="progress-wrap"><div class="progress-bar " + status + "" style="width:" + barWidth + "%"></div></div>" +
-      "<div class="concept-footer">" +
-        "<div class="concept-stats">" +
-          "<div class="concept-stat">Errors: <span>" + data.errors + "</span></div>" +
-          "<div class="concept-stat">Practiced: <span>" + data.practiced + "</span></div>" +
-          "<div class="concept-stat">Correct: <span>" + data.correct + "</span></div>" +
-        "</div>" +
-        actionBtn +
-      "</div>" +
-    "</div>";
+      ? '<button class="btn-unmaster" data-concept="' + k + '">Reactivate</button>'
+      : (status === "strong" ? '<button class="btn-master" data-concept="' + k + '">Mark Mastered</button>' : "");
+
+    return h("div", "concept-card" + (isMastered ? " mastered" : ""),
+      h("div", "concept-card-top",
+        h("span", "concept-name", k) +
+        h("div", "concept-meta",
+          h("span", "accuracy-text", getAccuracyText(data)) +
+          h("span", "status-badge " + status, status)
+        )
+      ) +
+      h("div", "progress-wrap", '<div class="progress-bar ' + status + '" style="width:' + barWidth + '%"></div>') +
+      h("div", "concept-footer",
+        h("div", "concept-stats",
+          h("div", "concept-stat", "Errors: " + h("span", "", data.errors)) +
+          h("div", "concept-stat", "Practiced: " + h("span", "", data.practiced)) +
+          h("div", "concept-stat", "Correct: " + h("span", "", data.correct))
+        ) + actionBtn
+      )
+    );
   }).join("");
 
   document.querySelectorAll(".btn-master").forEach(function(btn) {
