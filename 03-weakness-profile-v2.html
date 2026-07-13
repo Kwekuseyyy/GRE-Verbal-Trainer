@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRE Verbal Mastery Trainer — Weakness Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2; --cream-dark: #F0EAE0; --cream-mid: #E8E0D4;
+      --gold: #C9A84C; --gold-light: #E2C47A; --gold-dim: rgba(201,168,76,0.12);
+      --ink: #1A1612; --ink-soft: #4A3F35; --ink-muted: #8A7968;
+      --error: #C0392B; --success: #27AE60; --warning: #E67E22;
+      --radius: 10px; --shadow: 0 4px 24px rgba(26,22,18,0.08);
+    }
+    body { background: var(--cream); font-family: "Plus Jakarta Sans", sans-serif; color: var(--ink); min-height: 100vh; }
+
+    .nav {
+      background: var(--ink); padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-mark { width: 32px; height: 32px; background: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-mark svg { width: 18px; height: 18px; fill: none; stroke: var(--cream); stroke-width: 2; }
+    .nav-title { font-family: "DM Serif Display", serif; font-size: 1rem; color: var(--cream); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link {
+      padding: 7px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--ink-muted);
+      text-decoration: none;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: var(--cream); }
+    .nav-link.active { background: var(--gold-dim); color: var(--gold); }
+
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .page-header { margin-bottom: 36px; }
+    .page-eyebrow { font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .page-title { font-family: "DM Serif Display", serif; font-size: 2rem; color: var(--ink); line-height: 1.2; }
+    .page-sub { font-size: 0.9rem; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: #fff; border-radius: 12px; padding: 20px;
+      border: 1px solid var(--cream-dark); box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-number { font-family: "DM Serif Display", serif; font-size: 2rem; color: var(--ink); line-height: 1; }
+    .stat-label { font-size: 0.75rem; color: var(--ink-muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-card.highlight .stat-number { color: var(--gold); }
+
+    /* Section */
+    .section { margin-bottom: 36px; }
+    .section-title { font-family: "DM Serif Display", serif; font-size: 1.3rem; color: var(--ink); margin-bottom: 16px; }
+
+    /* Weakness cards */
+    .weakness-grid { display: flex; flex-direction: column; gap: 12px; }
+    .weakness-card {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 20px 24px; box-shadow: var(--shadow);
+    }
+    .weakness-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .weakness-name { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+    .weakness-count { font-size: 0.78rem; color: var(--ink-muted); }
+    .weakness-bar-wrap { height: 6px; background: var(--cream-dark); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+    .weakness-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .weakness-bar.core { background: var(--error); }
+    .weakness-bar.recurring { background: var(--warning); }
+    .weakness-bar.minor { background: var(--gold); }
+    .weakness-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .weakness-tag {
+      padding: 3px 10px; background: var(--cream); border-radius: 12px;
+      font-size: 0.72rem; color: var(--ink-muted); border: 1px solid var(--cream-dark);
+    }
+    .severity-label {
+      display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .severity-label.core { background: #FDF0EE; color: var(--error); }
+    .severity-label.recurring { background: #FEF9EE; color: var(--warning); }
+    .severity-label.minor { background: var(--gold-dim); color: var(--gold); }
+
+    /* Question type breakdown */
+    .qtype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .qtype-card {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 20px; text-align: center; box-shadow: var(--shadow);
+    }
+    .qtype-name { font-size: 1.3rem; font-weight: 700; color: var(--ink); font-family: "DM Serif Display", serif; }
+    .qtype-count { font-size: 0.78rem; color: var(--ink-muted); margin-top: 4px; }
+    .qtype-bar-wrap { height: 4px; background: var(--cream-dark); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+    .qtype-bar { height: 100%; background: var(--gold); border-radius: 2px; }
+
+    /* Decision rules */
+    .rules-list { display: flex; flex-direction: column; gap: 12px; }
+    .rule-card {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 18px 20px; box-shadow: var(--shadow);
+      border-left: 4px solid var(--gold);
+    }
+    .rule-concept { font-size: 0.72rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .rule-text { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.6; }
+
+    /* Empty state */
+    .empty-state {
+      background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark);
+      padding: 60px 24px; text-align: center;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.4; }
+    .empty-title { font-family: "DM Serif Display", serif; font-size: 1.2rem; color: var(--ink); margin-bottom: 8px; }
+    .empty-sub { font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 20px; }
+    .btn-primary {
+      display: inline-block; padding: 11px 24px; background: var(--gold); color: var(--cream);
+      border: none; border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+
+    .footer-note { text-align: center; margin-top: 48px; font-size: 0.75rem; color: var(--ink-muted); }
+
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .qtype-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <div class="nav-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="nav-title">Verbal Mastery Trainer</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="02-error-log.html">Error Log</a>
+    <a class="nav-link active" href="03-weakness-profile.html">Weakness Profile</a>
+    <a class="nav-link" href="04-question-generator.html">Practice</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-eyebrow">Your Profile</div>
+    <h1 class="page-title">Weakness Profile</h1>
+    <p class="page-sub">Patterns extracted from your error log. These are the concepts holding you back from 170V.</p>
+  </div>
+
+  <div id="main-content"></div>
+
+  <div class="footer-note">GRE Verbal Mastery Trainer · Built for precision, not volume</div>
+</div>
+
+<script>
+  const errorLog = JSON.parse(localStorage.getItem('gvmt_error_log') || '[]');
+
+  function render() {
+    const container = document.getElementById('main-content');
+
+    if (errorLog.length === 0) {
+      container.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="empty-icon">🧠</div>' +
+          '<div class="empty-title">No data yet</div>' +
+          '<p class="empty-sub">Log some missed questions first and your weakness profile will build automatically.</p>' +
+          '<a class="btn-primary" href="02-error-log.html">Go to Error Log</a>' +
+        '</div>';
+      return;
+    }
+
+    // ── Aggregate data ────────────────────────────────────
+    const conceptMap = {};
+    const qtypeMap = {};
+    const rulesMap = {};
+    let coreCount = 0, recurringCount = 0, minorCount = 0;
+
+    errorLog.forEach(function(entry) {
+      const d = entry.diagnosis;
+      if (!d) return;
+
+      // Severity counts
+      if (d.severity === 3) coreCount++;
+      else if (d.severity === 2) recurringCount++;
+      else minorCount++;
+
+      // Question types
+      const qt = d.question_type || 'Unknown';
+      qtypeMap[qt] = (qtypeMap[qt] || 0) + 1;
+
+      // Concepts
+      (d.concepts || []).forEach(function(c) {
+        if (!conceptMap[c]) conceptMap[c] = { count: 0, severity: 0, qtypes: new Set() };
+        conceptMap[c].count++;
+        conceptMap[c].severity = Math.max(conceptMap[c].severity, d.severity || 1);
+        conceptMap[c].qtypes.add(qt);
+      });
+
+      // Decision rules — store unique ones
+      if (d.decision_rule && d.error_category) {
+        const key = d.error_category;
+        if (!rulesMap[key]) rulesMap[key] = { rule: d.decision_rule, concept: d.error_category };
+      }
+    });
+
+    // Sort concepts by severity then count
+    const concepts = Object.entries(conceptMap).sort(function(a, b) {
+      if (b[1].severity !== a[1].severity) return b[1].severity - a[1].severity;
+      return b[1].count - a[1].count;
+    });
+
+    const maxCount = concepts.length > 0 ? concepts[0][1].count : 1;
+    const totalErrors = errorLog.length;
+
+    // ── Stats row ─────────────────────────────────────────
+    const statsHTML =
+      '<div class="stats-row">' +
+        '<div class="stat-card">' +
+          '<div class="stat-number">' + totalErrors + '</div>' +
+          '<div class="stat-label">Questions Logged</div>' +
+        '</div>' +
+        '<div class="stat-card highlight">' +
+          '<div class="stat-number">' + concepts.length + '</div>' +
+          '<div class="stat-label">Concepts Identified</div>' +
+        '</div>' +
+        '<div class="stat-card">' +
+          '<div class="stat-number">' + coreCount + '</div>' +
+          '<div class="stat-label">Core Weaknesses</div>' +
+        '</div>' +
+        '<div class="stat-card">' +
+          '<div class="stat-number">' + Object.keys(rulesMap).length + '</div>' +
+          '<div class="stat-label">Decision Rules</div>' +
+        '</div>' +
+      '</div>';
+
+    // ── Weakness cards ────────────────────────────────────
+    const weaknessHTML = concepts.map(function(entry) {
+      const name = entry[0];
+      const data = entry[1];
+      const pct = Math.round((data.count / maxCount) * 100);
+      const sevClass = data.severity === 3 ? 'core' : data.severity === 2 ? 'recurring' : 'minor';
+      const sevLabel = data.severity === 3 ? 'Core weakness' : data.severity === 2 ? 'Recurring gap' : 'Minor slip';
+      const qtypes = Array.from(data.qtypes).map(function(qt) {
+        return '<span class="weakness-tag">' + qt + '</span>';
+      }).join('');
+      const qtypeTags = Array.from(data.qtypes).map(function(qt) {
+        return '<span class="weakness-tag">' + qt + '</span>';
+      }).join('');
+
+      return '<div class="weakness-card">' +
+        '<div class="weakness-card-top">' +
+          '<span class="weakness-name">' + name + '</span>' +
+          '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<span class="weakness-count">' + data.count + ' ' + (data.count === 1 ? 'error' : 'errors') + '</span>' +
+            '<span class="severity-label ' + sevClass + '">' + sevLabel + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="weakness-bar-wrap"><div class="weakness-bar ' + sevClass + '" style="width:' + pct + '%"></div></div>' +
+        '<div class="weakness-tags">' + qtypeTags + '</div>' +
+      '</div>';
+    }).join('');
+
+    // ── Question type breakdown ───────────────────────────
+    const maxQT = Math.max.apply(null, Object.values(qtypeMap).concat([1]));
+    const qtypeHTML = Object.entries(qtypeMap).map(function(entry) {
+      const pct = Math.round((entry[1] / maxQT) * 100);
+      return '<div class="qtype-card">' +
+        '<div class="qtype-name">' + entry[0] + '</div>' +
+        '<div class="qtype-count">' + entry[1] + ' error' + (entry[1] !== 1 ? 's' : '') + '</div>' +
+        '<div class="qtype-bar-wrap"><div class="qtype-bar" style="width:' + pct + '%"></div></div>' +
+      '</div>';
+    }).join('');
+
+    // ── Decision rules ────────────────────────────────────
+    const rulesHTML = Object.values(rulesMap).map(function(r) {
+      return '<div class="rule-card">' +
+        '<div class="rule-concept">' + r.concept + '</div>' +
+        '<div class="rule-text">' + r.rule + '</div>' +
+      '</div>';
+    }).join('');
+
+    container.innerHTML =
+      statsHTML +
+      '<div class="section">' +
+        '<div class="section-title">Concepts to Conquer</div>' +
+        '<div class="weakness-grid">' + weaknessHTML + '</div>' +
+      '</div>' +
+      '<div class="section">' +
+        '<div class="section-title">Errors by Question Type</div>' +
+        '<div class="qtype-grid">' + (qtypeHTML || '<p style="color:var(--ink-muted);font-size:0.88rem;">No data yet.</p>') + '</div>' +
+      '</div>' +
+      '<div class="section">' +
+        '<div class="section-title">Your Decision Rules</div>' +
+        '<div class="rules-list">' + (rulesHTML || '<p style="color:var(--ink-muted);font-size:0.88rem;">Rules will appear as you log more errors.</p>') + '</div>' +
+      '</div>';
+  }
+
+  render();
+</script>
+</body>
+</html>
