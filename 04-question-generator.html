@@ -443,21 +443,16 @@
 
     // Get explanation from Claude
     try {
-      const prompt = 'A student answered a GRE ' + currentQuestion.type + ' question.
-
-Question: ' + currentQuestion.stem + '
-Student chose: ' + selectedAnswer + '
-Correct answer: ' + currentQuestion.correct + '
-Result: ' + (isCorrect ? 'CORRECT' : 'INCORRECT') + '
-Concept tested: ' + currentQuestion.concept_tested + '
-
-Provide a brief evaluation in raw JSON only:
-{
-  "verdict": "Correct" or "Incorrect",
-  "explanation": "Why the correct answer is right (2-3 sentences)",
-  "why_wrong": "Why the students choice was wrong if incorrect, else null",
-  "reinforcement": "The key principle to remember for this concept (1 sentence)"
-}';
+      const prompt = [
+        "A student answered a GRE " + currentQuestion.type + " question.",
+        "Question: " + currentQuestion.stem,
+        "Student chose: " + selectedAnswer,
+        "Correct answer: " + currentQuestion.correct,
+        "Result: " + (isCorrect ? "CORRECT" : "INCORRECT"),
+        "Concept tested: " + currentQuestion.concept_tested,
+        "Provide a brief evaluation in raw JSON only (no markdown):",
+        '{"verdict":"Correct or Incorrect","explanation":"Why the correct answer is right","why_wrong":"Why wrong if incorrect else null","reinforcement":"Key principle to remember"}'
+      ].join("\n");
 
       const response = await fetch(PROXY, {
         method: 'POST',
