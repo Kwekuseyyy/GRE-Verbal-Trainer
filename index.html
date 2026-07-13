@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRE Verbal Mastery Trainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2; --cream-dark: #F0EAE0; --cream-mid: #E8E0D4;
+      --gold: #C9A84C; --gold-light: #E2C47A; --gold-dim: rgba(201,168,76,0.12);
+      --ink: #1A1612; --ink-soft: #4A3F35; --ink-muted: #8A7968;
+      --error: #C0392B; --success: #27AE60; --warning: #E67E22;
+      --radius: 10px; --shadow: 0 4px 24px rgba(26,22,18,0.08);
+      --shadow-lg: 0 8px 40px rgba(26,22,18,0.12);
+    }
+    body { background: var(--cream); font-family: "Plus Jakarta Sans", sans-serif; color: var(--ink); min-height: 100vh; }
+
+    /* ── NAV ── */
+    .nav { background: var(--ink); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; }
+    .nav-mark { width: 32px; height: 32px; background: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .nav-mark svg { width: 18px; height: 18px; fill: none; stroke: var(--cream); stroke-width: 2; }
+    .nav-title { font-family: "DM Serif Display", serif; font-size: 1rem; color: var(--cream); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link { padding: 7px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: var(--ink-muted); }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: var(--cream); }
+    .nav-link.active { background: var(--gold-dim); color: var(--gold); }
+
+    /* ── PAGES ── */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* ── SHARED PAGE STYLES ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page-eyebrow { font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .page-title { font-family: "DM Serif Display", serif; font-size: 2rem; color: var(--ink); line-height: 1.2; }
+    .page-sub { font-size: 0.9rem; color: var(--ink-muted); margin-top: 8px; line-height: 1.6; }
+
+    /* ── ERROR LOG ── */
+    .upload-card { background: #fff; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--cream-dark); overflow: hidden; margin-bottom: 32px; }
+    .upload-card-header { padding: 20px 28px; border-bottom: 1px solid var(--cream-dark); display: flex; align-items: center; gap: 12px; }
+    .step-badge { width: 28px; height: 28px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--cream); flex-shrink: 0; }
+    .upload-card-header h3 { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+    .upload-card-header p { font-size: 0.8rem; color: var(--ink-muted); margin-top: 2px; }
+    .upload-card-body { padding: 28px; }
+    .drop-zone { border: 2px dashed var(--cream-mid); border-radius: 12px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); position: relative; }
+    .drop-zone:hover, .drop-zone.dragover { border-color: var(--gold); background: var(--gold-dim); }
+    .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .drop-icon { font-size: 2rem; margin-bottom: 12px; }
+    .drop-label { font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+    .drop-sub { font-size: 0.78rem; color: var(--ink-muted); }
+    .drop-hint { font-size: 0.72rem; color: var(--gold); margin-top: 8px; font-weight: 600; }
+    .preview-wrap { display: none; position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--cream-dark); }
+    .preview-wrap img { width: 100%; max-height: 320px; object-fit: contain; background: var(--cream); display: block; }
+    .preview-remove { position: absolute; top: 10px; right: 10px; background: rgba(26,22,18,0.7); color: #fff; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .preview-remove:hover { background: var(--error); }
+    .section-divider { height: 1px; background: var(--cream-dark); margin: 24px 0; }
+    .field-label { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; display: block; }
+    textarea { width: 100%; padding: 14px; border: 1.5px solid var(--cream-dark); border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.88rem; color: var(--ink); background: var(--cream); resize: vertical; min-height: 110px; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+    textarea:focus { border-color: var(--gold); background: #fff; }
+    textarea::placeholder { color: var(--ink-muted); }
+    .error-types { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .error-chip { padding: 6px 14px; border: 1.5px solid var(--cream-dark); border-radius: 20px; font-size: 0.78rem; font-weight: 600; color: var(--ink-muted); cursor: pointer; transition: all 0.2s; background: var(--cream); user-select: none; }
+    .error-chip:hover { border-color: var(--gold-light); color: var(--ink); }
+    .error-chip.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+    .submit-row { display: flex; gap: 12px; align-items: center; margin-top: 24px; }
+    .submit-note { font-size: 0.78rem; color: var(--ink-muted); }
+    .result-card { background: #fff; border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--cream-dark); overflow: hidden; display: none; margin-bottom: 32px; animation: slideUp 0.3s ease; }
+    .result-header { padding: 20px 28px; background: var(--ink); display: flex; align-items: center; gap: 12px; }
+    .result-header h3 { font-family: "DM Serif Display", serif; font-size: 1.1rem; color: var(--cream); }
+    .result-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: auto; }
+    .result-badge.diagnosed { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+    .result-body { padding: 28px; }
+    .result-section { margin-bottom: 24px; }
+    .result-section:last-child { margin-bottom: 0; }
+    .result-section-label { font-size: 0.72rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .result-section-content { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; background: var(--cream); border-radius: 8px; padding: 14px 16px; border-left: 3px solid var(--gold); }
+    .concept-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .concept-tag { padding: 5px 12px; background: var(--gold-dim); color: var(--gold); border-radius: 20px; font-size: 0.78rem; font-weight: 600; border: 1px solid rgba(201,168,76,0.3); }
+    .severity-bar { display: flex; gap: 6px; margin-top: 6px; }
+    .severity-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cream-mid); }
+    .severity-dot.active { background: var(--gold); }
+    .severity-label { font-size: 0.78rem; color: var(--ink-muted); margin-left: 4px; }
+    .result-actions { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--cream-dark); }
+    .log-section { margin-top: 48px; }
+    .log-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .log-section-title { font-family: "DM Serif Display", serif; font-size: 1.3rem; color: var(--ink); }
+    .log-count { font-size: 0.78rem; color: var(--ink-muted); font-weight: 600; }
+    .log-empty { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 48px 24px; text-align: center; color: var(--ink-muted); font-size: 0.88rem; }
+    .log-empty-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.5; }
+    .log-item { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 20px 24px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; display: flex; gap: 16px; align-items: flex-start; }
+    .log-item:hover { border-color: var(--gold-light); box-shadow: var(--shadow); }
+    .log-item-thumb { width: 60px; height: 50px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: var(--cream-dark); }
+    .log-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .log-item-body { flex: 1; min-width: 0; }
+    .log-item-concept { font-size: 0.78rem; font-weight: 700; color: var(--gold); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .log-item-error { font-size: 0.88rem; color: var(--ink); font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .log-item-date { font-size: 0.75rem; color: var(--ink-muted); }
+    .log-item-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .mastery-pill { padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; }
+    .mastery-pill.weak { background: #FDF0EE; color: var(--error); }
+    .mastery-pill.developing { background: #FEF9EE; color: var(--warning); }
+    .mastery-pill.strong { background: #EEF8F2; color: var(--success); }
+
+    /* ── WEAKNESS PROFILE ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid var(--cream-dark); box-shadow: var(--shadow); text-align: center; }
+    .stat-number { font-family: "DM Serif Display", serif; font-size: 2rem; color: var(--ink); line-height: 1; }
+    .stat-number.gold { color: var(--gold); }
+    .stat-number.green { color: var(--success); }
+    .stat-label { font-size: 0.72rem; color: var(--ink-muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .section { margin-bottom: 36px; }
+    .section-title { font-family: "DM Serif Display", serif; font-size: 1.3rem; color: var(--ink); margin-bottom: 16px; }
+    .weakness-grid { display: flex; flex-direction: column; gap: 12px; }
+    .weakness-card { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 20px 24px; box-shadow: var(--shadow); }
+    .weakness-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .weakness-name { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+    .weakness-count { font-size: 0.78rem; color: var(--ink-muted); }
+    .weakness-bar-wrap { height: 6px; background: var(--cream-dark); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+    .weakness-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .weakness-bar.core { background: var(--error); }
+    .weakness-bar.recurring { background: var(--warning); }
+    .weakness-bar.minor { background: var(--gold); }
+    .weakness-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .weakness-tag { padding: 3px 10px; background: var(--cream); border-radius: 12px; font-size: 0.72rem; color: var(--ink-muted); border: 1px solid var(--cream-dark); }
+    .severity-label-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .severity-label-badge.core { background: #FDF0EE; color: var(--error); }
+    .severity-label-badge.recurring { background: #FEF9EE; color: var(--warning); }
+    .severity-label-badge.minor { background: var(--gold-dim); color: var(--gold); }
+    .qtype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .qtype-card { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 20px; text-align: center; box-shadow: var(--shadow); }
+    .qtype-name { font-size: 1.3rem; font-weight: 700; color: var(--ink); font-family: "DM Serif Display", serif; }
+    .qtype-count { font-size: 0.78rem; color: var(--ink-muted); margin-top: 4px; }
+    .qtype-bar-wrap { height: 4px; background: var(--cream-dark); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+    .qtype-bar { height: 100%; background: var(--gold); border-radius: 2px; }
+    .rules-list { display: flex; flex-direction: column; gap: 12px; }
+    .rule-card { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 18px 20px; box-shadow: var(--shadow); border-left: 4px solid var(--gold); }
+    .rule-concept { font-size: 0.72rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .rule-text { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.6; }
+
+    /* ── PRACTICE ── */
+    .target-bar { background: var(--ink); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .target-label { font-size: 0.75rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .target-concept { font-size: 0.95rem; font-weight: 600; color: var(--gold); }
+    .target-actions { display: flex; gap: 8px; }
+    .btn-ghost { padding: 8px 16px; background: rgba(255,255,255,0.08); color: var(--cream); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: "Plus Jakarta Sans", sans-serif; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.15); }
+    .question-card { background: #fff; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--cream-dark); overflow: hidden; margin-bottom: 20px; }
+    .question-card-header { padding: 16px 24px; background: var(--cream); border-bottom: 1px solid var(--cream-dark); display: flex; align-items: center; justify-content: space-between; }
+    .qtype-badge { padding: 4px 12px; background: var(--gold-dim); color: var(--gold); border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(201,168,76,0.3); }
+    .question-num { font-size: 0.78rem; color: var(--ink-muted); }
+    .question-body { padding: 28px 28px 20px; }
+    .passage { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.8; padding: 16px 20px; background: var(--cream); border-radius: 8px; border-left: 3px solid var(--cream-mid); margin-bottom: 20px; }
+    .question-stem { font-size: 0.95rem; color: var(--ink); line-height: 1.6; margin-bottom: 20px; font-weight: 500; }
+    .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .choice { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--cream-dark); border-radius: var(--radius); cursor: pointer; transition: all 0.2s; background: var(--cream); }
+    .choice:hover { border-color: var(--gold-light); background: #fff; }
+    .choice.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .choice.correct { border-color: var(--success); background: #EEF8F2; }
+    .choice.incorrect { border-color: var(--error); background: #FDF0EE; }
+    .choice-letter { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--cream-mid); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--ink-muted); flex-shrink: 0; transition: all 0.2s; }
+    .choice.selected .choice-letter { border-color: var(--gold); color: var(--gold); background: #fff; }
+    .choice.correct .choice-letter { border-color: var(--success); color: var(--success); background: #fff; }
+    .choice.incorrect .choice-letter { border-color: var(--error); color: var(--error); background: #fff; }
+    .choice-text { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5; padding-top: 2px; }
+    .question-footer { padding: 0 28px 24px; display: flex; gap: 12px; align-items: center; }
+    .eval-card { background: #fff; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--cream-dark); overflow: hidden; margin-bottom: 20px; display: none; animation: slideUp 0.3s ease; }
+    .eval-header { padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+    .eval-header.correct { background: #EEF8F2; border-bottom: 1px solid #C0E8D0; }
+    .eval-header.incorrect { background: #FDF0EE; border-bottom: 1px solid #F5C6C0; }
+    .eval-icon { font-size: 1.3rem; }
+    .eval-verdict { font-size: 0.95rem; font-weight: 700; }
+    .eval-header.correct .eval-verdict { color: var(--success); }
+    .eval-header.incorrect .eval-verdict { color: var(--error); }
+    .eval-body { padding: 24px; }
+    .eval-section { margin-bottom: 18px; }
+    .eval-section:last-child { margin-bottom: 0; }
+    .eval-label { font-size: 0.72rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+    .eval-text { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; background: var(--cream); border-radius: 8px; padding: 12px 14px; }
+    .score-bar { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 16px 20px; margin-bottom: 24px; display: flex; gap: 24px; align-items: center; }
+    .score-item { text-align: center; }
+    .score-num { font-family: "DM Serif Display", serif; font-size: 1.5rem; }
+    .score-num.correct { color: var(--success); }
+    .score-num.incorrect { color: var(--error); }
+    .score-num.total { color: var(--ink); }
+    .score-lbl { font-size: 0.7rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .score-divider { width: 1px; height: 40px; background: var(--cream-dark); }
+    .score-pct { font-family: "DM Serif Display", serif; font-size: 1.8rem; color: var(--gold); margin-left: auto; }
+    .spinner-dark { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--cream-dark); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 16px; }
+
+    /* ── MASTERY ── */
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-tab { padding: 7px 16px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1.5px solid var(--cream-dark); background: var(--cream); color: var(--ink-muted); }
+    .filter-tab:hover { border-color: var(--gold-light); color: var(--ink); }
+    .filter-tab.active { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+    .concept-list { display: flex; flex-direction: column; gap: 12px; }
+    .concept-card { background: #fff; border-radius: 12px; border: 1px solid var(--cream-dark); padding: 20px 24px; box-shadow: var(--shadow); transition: all 0.2s; }
+    .concept-card.mastered { opacity: 0.65; border-color: var(--success); }
+    .concept-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+    .concept-name { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+    .concept-meta { display: flex; align-items: center; gap: 10px; }
+    .status-badge { padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .status-badge.weak { background: #FDF0EE; color: var(--error); }
+    .status-badge.developing { background: #FEF9EE; color: var(--warning); }
+    .status-badge.strong { background: #EEF8F2; color: var(--success); }
+    .status-badge.mastered { background: #EEF8F2; color: var(--success); border: 1px solid var(--success); }
+    .accuracy-text { font-size: 0.78rem; font-weight: 700; color: var(--ink-muted); }
+    .progress-wrap { height: 6px; background: var(--cream-dark); border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .progress-bar.weak { background: var(--error); }
+    .progress-bar.developing { background: var(--warning); }
+    .progress-bar.strong, .progress-bar.mastered { background: var(--success); }
+    .concept-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .concept-stats { display: flex; gap: 16px; }
+    .concept-stat { font-size: 0.75rem; color: var(--ink-muted); }
+    .concept-stat span { font-weight: 700; color: var(--ink); }
+    .btn-master { padding: 7px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: "Plus Jakarta Sans", sans-serif; border: 1.5px solid var(--success); background: transparent; color: var(--success); }
+    .btn-master:hover { background: #EEF8F2; }
+    .btn-unmaster { padding: 7px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: "Plus Jakarta Sans", sans-serif; border: 1.5px solid var(--cream-dark); background: transparent; color: var(--ink-muted); }
+    .btn-unmaster:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── SHARED ── */
+    .btn-primary { padding: 12px 24px; background: var(--gold); color: var(--cream); border: none; border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 6px; display: inline-block; text-decoration: none; }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-secondary { padding: 12px 20px; background: transparent; color: var(--ink-soft); border: 1.5px solid var(--cream-dark); border-radius: var(--radius); font-family: "Plus Jakarta Sans", sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .empty-state { background: #fff; border-radius: 16px; border: 1px solid var(--cream-dark); padding: 60px 24px; text-align: center; box-shadow: var(--shadow); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.4; }
+    .empty-title { font-family: "DM Serif Display", serif; font-size: 1.2rem; margin-bottom: 8px; }
+    .empty-sub { font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 20px; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
+    .footer-note { text-align: center; margin-top: 48px; font-size: 0.75rem; color: var(--ink-muted); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .qtype-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand" onclick="showPage('error-log')">
+    <div class="nav-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="nav-title">Verbal Mastery Trainer</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-error-log" onclick="showPage('error-log')">Error Log</button>
+    <button class="nav-link" id="nav-weakness" onclick="showPage('weakness')">Weakness Profile</button>
+    <button class="nav-link" id="nav-practice" onclick="showPage('practice')">Practice</button>
+    <button class="nav-link" id="nav-mastery" onclick="showPage('mastery')">Mastery</button>
+  </div>
+</nav>
+
+<!-- ERROR LOG PAGE -->
+<div class="page-section active" id="page-error-log">
+  <div class="page" style="max-width:900px;">
+    <div style="margin-bottom:36px;">
+      <div class="page-eyebrow">Error Analysis</div>
+      <h1 class="page-title">Log a Missed Question</h1>
+      <p class="page-sub">Upload a screenshot of the question you struggled with, describe your reasoning, and Claude will diagnose exactly what went wrong.</p>
+    </div>
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <div class="step-badge">1</div>
+        <div><h3>Upload your screenshot</h3><p>Any GRE Verbal question — TC, SE, RC, or CR</p></div>
+      </div>
+      <div class="upload-card-body">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/*" />
+          <div class="drop-icon">&#128248;</div>
+          <div class="drop-label">Drop your screenshot here</div>
+          <div class="drop-sub">or click to browse</div>
+          <div class="drop-hint">PNG, JPG, WEBP supported</div>
+        </div>
+        <div class="preview-wrap" id="preview-wrap">
+          <img id="preview-img" src="" alt="Question screenshot" />
+          <button class="preview-remove" id="preview-remove">&#x2715; Remove</button>
+        </div>
+        <div class="section-divider"></div>
+        <div>
+          <div class="upload-card-header" style="padding:0 0 16px 0;border-bottom:none;">
+            <div class="step-badge">2</div>
+            <div><h3>Describe your reasoning</h3><p>What were you thinking? What made you pick your answer?</p></div>
+          </div>
+          <textarea id="reasoning" placeholder="e.g. I thought the blank needed a word meaning 'to increase' so I picked augment, but I was unsure between augment and bolster..."></textarea>
+          <div style="margin-top:16px;">
+            <span class="field-label">What type of error do you think this was?</span>
+            <div class="error-types" id="error-types">
+              <div class="error-chip" data-type="vocabulary">Vocabulary gap</div>
+              <div class="error-chip" data-type="two-answers">Trapped between two answers</div>
+              <div class="error-chip" data-type="misread">Misread the question</div>
+              <div class="error-chip" data-type="logic">Faulty logic</div>
+              <div class="error-chip" data-type="tone">Missed tone/direction</div>
+              <div class="error-chip" data-type="passage">Passage comprehension</div>
+              <div class="error-chip" data-type="unsure">Not sure</div>
+            </div>
+          </div>
+        </div>
+        <div class="submit-row">
+          <button class="btn-primary" id="btn-analyze">Analyze Question</button>
+          <span class="submit-note">Claude will extract the question and diagnose your error</span>
+        </div>
+      </div>
+    </div>
+    <div class="result-card" id="result-card">
+      <div class="result-header"><h3>Diagnosis</h3><span class="result-badge diagnosed">Complete</span></div>
+      <div class="result-body" id="result-body"></div>
+    </div>
+    <div class="log-section">
+      <div class="log-section-header">
+        <h2 class="log-section-title">Error Log</h2>
+        <span class="log-count" id="log-count">0 entries</span>
+      </div>
+      <div id="log-list"><div class="log-empty"><div class="log-empty-icon">&#128203;</div>No errors logged yet.</div></div>
+    </div>
+    <div class="footer-note">GRE Verbal Mastery Trainer &middot; Built for precision, not volume</div>
+  </div>
+</div>
+
+<!-- WEAKNESS PROFILE PAGE -->
+<div class="page-section" id="page-weakness">
+  <div class="page">
+    <div style="margin-bottom:36px;">
+      <div class="page-eyebrow">Your Profile</div>
+      <h1 class="page-title">Weakness Profile</h1>
+      <p class="page-sub">Patterns extracted from your error log. These are the concepts holding you back from 170V.</p>
+    </div>
+    <div id="weakness-content"></div>
+    <div class="footer-note">GRE Verbal Mastery Trainer &middot; Built for precision, not volume</div>
+  </div>
+</div>
+
+<!-- PRACTICE PAGE -->
+<div class="page-section" id="page-practice">
+  <div class="page" style="max-width:780px;">
+    <div style="margin-bottom:36px;">
+      <div class="page-eyebrow">Targeted Practice</div>
+      <h1 class="page-title">Practice Questions</h1>
+      <p class="page-sub">Questions generated to target your exact weak concepts. Each one is calibrated to the errors in your log.</p>
+    </div>
+    <div id="practice-content"></div>
+    <div class="footer-note">GRE Verbal Mastery Trainer &middot; Built for precision, not volume</div>
+  </div>
+</div>
+
+<!-- MASTERY PAGE -->
+<div class="page-section" id="page-mastery">
+  <div class="page">
+    <div style="margin-bottom:36px;">
+      <div class="page-eyebrow">Progress</div>
+      <h1 class="page-title">Mastery Tracker</h1>
+      <p class="page-sub">Track your accuracy per concept. Mark concepts as mastered to retire them from the practice queue.</p>
+    </div>
+    <div id="mastery-stats" class="stats-row"></div>
+    <div class="section-title">Concepts</div>
+    <div class="filter-tabs" id="filter-tabs">
+      <div class="filter-tab active" data-filter="all">All</div>
+      <div class="filter-tab" data-filter="weak">Weak</div>
+      <div class="filter-tab" data-filter="developing">Developing</div>
+      <div class="filter-tab" data-filter="strong">Strong</div>
+      <div class="filter-tab" data-filter="mastered">Mastered</div>
+    </div>
+    <div id="concept-list" class="concept-list"></div>
+    <div class="footer-note">GRE Verbal Mastery Trainer &middot; Built for precision, not volume</div>
+  </div>
+</div>
+
+<script>
+// ── PROXY ─────────────────────────────────────────────────
+var PROXY = "https://withered-poetry-abe5.glorykwekukankamsey.workers.dev";
+
+// ── SHARED DATA ───────────────────────────────────────────
+var errorLog = JSON.parse(localStorage.getItem("gvmt_error_log") || "[]");
+var practiceLog = JSON.parse(localStorage.getItem("gvmt_practice_log") || "[]");
+var mastered = JSON.parse(localStorage.getItem("gvmt_mastered") || "[]");
+
+// ── NAVIGATION ────────────────────────────────────────────
+var pages = ["error-log", "weakness", "practice", "mastery"];
+
+function showPage(page) {
+  pages.forEach(function(p) {
+    document.getElementById("page-" + p).classList.remove("active");
+    document.getElementById("nav-" + p).classList.remove("active");
+  });
+  document.getElementById("page-" + page).classList.add("active");
+  document.getElementById("nav-" + page).classList.add("active");
+  window.scrollTo(0, 0);
+  if (page === "weakness") renderWeakness();
+  if (page === "practice") initPractice();
+  if (page === "mastery") renderMastery();
+}
+
+// ── ERROR LOG ─────────────────────────────────────────────
+var uploadedFile = null;
+var uploadedDataURL = null;
+var selectedErrorType = null;
+
+var dropZone = document.getElementById("drop-zone");
+var fileInput = document.getElementById("file-input");
+var previewWrap = document.getElementById("preview-wrap");
+var previewImg = document.getElementById("preview-img");
+
+fileInput.addEventListener("change", function() { if (this.files[0]) handleFile(this.files[0]); });
+dropZone.addEventListener("dragover", function(e) { e.preventDefault(); this.classList.add("dragover"); });
+dropZone.addEventListener("dragleave", function() { this.classList.remove("dragover"); });
+dropZone.addEventListener("drop", function(e) { e.preventDefault(); this.classList.remove("dragover"); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+document.getElementById("preview-remove").addEventListener("click", function() {
+  uploadedFile = null; uploadedDataURL = null; fileInput.value = "";
+  previewWrap.style.display = "none"; dropZone.style.display = "block";
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith("image/")) return;
+  uploadedFile = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedDataURL = e.target.result;
+    previewImg.src = uploadedDataURL;
+    dropZone.style.display = "none";
+    previewWrap.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+}
+
+document.querySelectorAll(".error-chip").forEach(function(chip) {
+  chip.addEventListener("click", function() {
+    document.querySelectorAll(".error-chip").forEach(function(c) { c.classList.remove("selected"); });
+    this.classList.add("selected");
+    selectedErrorType = this.dataset.type;
+  });
+});
+
+document.getElementById("btn-analyze").addEventListener("click", async function() {
+  if (!uploadedDataURL) { alert("Please upload a screenshot first."); return; }
+  var reasoning = document.getElementById("reasoning").value.trim();
+  if (!reasoning) { alert("Please describe your reasoning."); return; }
+  var btn = this;
+  btn.disabled = true;
+  btn.innerHTML = "<span class=\"spinner\"></span>Analyzing...";
+  try {
+    var base64 = uploadedDataURL.split(",")[1];
+    var mediaType = uploadedFile.type;
+    var prompt = "You are an expert GRE Verbal tutor. Analyze this GRE Verbal question screenshot and the student reasoning.\n\nStudent reasoning: " + reasoning + "\nError type: " + (selectedErrorType || "not specified") + "\n\nReturn ONLY raw JSON:\n{\"question_type\":\"TC/SE/RC/CR\",\"question_summary\":\"brief description\",\"correct_answer\":\"correct answer and why\",\"student_error\":\"what went wrong\",\"error_category\":\"category\",\"root_cause\":\"deeper principle missing\",\"decision_rule\":\"transferable rule\",\"concepts\":[\"concept1\"],\"severity\":2}";
+    var response = await fetch(PROXY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: mediaType, data: base64 } }, { type: "text", text: prompt }] }] })
+    });
+    var data = await response.json();
+    var text = data.content[0].text.trim().replace(/```json|```/g, "").trim();
+    var result = JSON.parse(text);
+    var entry = { id: Date.now(), date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), thumbnail: uploadedDataURL, reasoning: reasoning, errorType: selectedErrorType, diagnosis: result };
+    errorLog.unshift(entry);
+    localStorage.setItem("gvmt_error_log", JSON.stringify(errorLog));
+    showResult(result);
+    renderLog();
+  } catch(err) {
+    alert("Analysis failed. Please try again.");
+    console.error(err);
+  }
+  btn.disabled = false;
+  btn.innerHTML = "Analyze Question";
+});
+
+function showResult(r) {
+  var dots = [1,2,3].map(function(i) { return "<div class=\"severity-dot" + (i <= r.severity ? " active" : "") + "\"></div>"; }).join("");
+  var concepts = (r.concepts || []).map(function(c) { return "<span class=\"concept-tag\">" + c + "</span>"; }).join("");
+  var labels = ["", "Minor slip", "Recurring gap", "Core weakness"];
+  document.getElementById("result-body").innerHTML =
+    "<div class=\"result-section\"><div class=\"result-section-label\">Question Type</div><div class=\"result-section-content\">" + r.question_type + " — " + r.question_summary + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">Correct Answer</div><div class=\"result-section-content\">" + r.correct_answer + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">What Went Wrong</div><div class=\"result-section-content\">" + r.student_error + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">Root Cause</div><div class=\"result-section-content\">" + r.root_cause + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">Decision Rule — Apply This Every Time</div><div class=\"result-section-content\" style=\"border-left-color:var(--ink);font-weight:600;\">" + r.decision_rule + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">Concepts Tested</div><div class=\"concept-tags\">" + concepts + "</div></div>" +
+    "<div class=\"result-section\"><div class=\"result-section-label\">Error Severity</div><div class=\"severity-bar\">" + dots + "<span class=\"severity-label\">" + (labels[r.severity] || "") + "</span></div></div>" +
+    "<div class=\"result-actions\"><button class=\"btn-secondary\" onclick=\"resetForm()\">Log Another</button><button class=\"btn-secondary\" onclick=\"document.querySelector(\'.log-section\').scrollIntoView({behavior:\'smooth\'})\">View Log</button></div>";
+  var card = document.getElementById("result-card");
+  card.style.display = "block";
+  card.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderLog() {
+  var list = document.getElementById("log-list");
+  document.getElementById("log-count").textContent = errorLog.length + " " + (errorLog.length === 1 ? "entry" : "entries");
+  if (errorLog.length === 0) { list.innerHTML = "<div class=\"log-empty\"><div class=\"log-empty-icon\">&#128203;</div>No errors logged yet.</div>"; return; }
+  list.innerHTML = errorLog.map(function(entry) {
+    var d = entry.diagnosis;
+    var sev = d.severity || 1;
+    var pc = sev === 3 ? "weak" : sev === 2 ? "developing" : "strong";
+    var pl = sev === 3 ? "Core weakness" : sev === 2 ? "Recurring gap" : "Minor slip";
+    var thumb = entry.thumbnail ? "<img src=\"" + entry.thumbnail + "\" alt=\"\" />" : "";
+    return "<div class=\"log-item\" onclick=\"expandEntry(" + entry.id + ")\"><div class=\"log-item-thumb\">" + thumb + "</div><div class=\"log-item-body\"><div class=\"log-item-concept\">" + (d.question_type || "") + " &middot; " + (d.error_category || "") + "</div><div class=\"log-item-error\">" + (d.decision_rule || d.student_error || "") + "</div><div class=\"log-item-date\">" + entry.date + "</div></div><div class=\"log-item-meta\"><span class=\"mastery-pill " + pc + "\">" + pl + "</span></div></div>";
+  }).join("");
+}
+
+function resetForm() {
+  uploadedFile = null; uploadedDataURL = null; selectedErrorType = null;
+  document.getElementById("file-input").value = "";
+  document.getElementById("reasoning").value = "";
+  document.querySelectorAll(".error-chip").forEach(function(c) { c.classList.remove("selected"); });
+  previewWrap.style.display = "none"; dropZone.style.display = "block";
+  document.getElementById("result-card").style.display = "none";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function expandEntry(id) {
+  var entry = errorLog.find(function(e) { return e.id === id; });
+  if (entry) { showResult(entry.diagnosis); document.getElementById("result-card").scrollIntoView({ behavior: "smooth" }); }
+}
+
+// ── WEAKNESS PROFILE ──────────────────────────────────────
+function renderWeakness() {
+  var container = document.getElementById("weakness-content");
+  if (errorLog.length === 0) {
+    container.innerHTML = "<div class=\"empty-state\"><div class=\"empty-icon\">&#129504;</div><div class=\"empty-title\">No data yet</div><p class=\"empty-sub\">Log some missed questions first.</p><button class=\"btn-primary\" onclick=\"showPage(\'error-log\')\">Go to Error Log</button></div>";
+    return;
+  }
+  var conceptMap = {}, qtypeMap = {}, rulesMap = {};
+  var coreCount = 0, recurringCount = 0, minorCount = 0;
+  errorLog.forEach(function(entry) {
+    var d = entry.diagnosis;
+    if (!d) return;
+    if (d.severity === 3) coreCount++; else if (d.severity === 2) recurringCount++; else minorCount++;
+    var qt = d.question_type || "Unknown";
+    qtypeMap[qt] = (qtypeMap[qt] || 0) + 1;
+    (d.concepts || []).forEach(function(c) {
+      if (!conceptMap[c]) conceptMap[c] = { count: 0, severity: 0, qtypes: [] };
+      conceptMap[c].count++;
+      conceptMap[c].severity = Math.max(conceptMap[c].severity, d.severity || 1);
+      if (conceptMap[c].qtypes.indexOf(qt) < 0) conceptMap[c].qtypes.push(qt);
+    });
+    if (d.decision_rule && d.error_category && !rulesMap[d.error_category]) rulesMap[d.error_category] = { rule: d.decision_rule, concept: d.error_category };
+  });
+  var concepts = Object.entries(conceptMap).sort(function(a, b) { return b[1].severity !== a[1].severity ? b[1].severity - a[1].severity : b[1].count - a[1].count; });
+  var maxCount = concepts.length > 0 ? concepts[0][1].count : 1;
+  var statsHTML = "<div class=\"stats-row\"><div class=\"stat-card\"><div class=\"stat-number\">" + errorLog.length + "</div><div class=\"stat-label\">Questions Logged</div></div><div class=\"stat-card\"><div class=\"stat-number gold\">" + concepts.length + "</div><div class=\"stat-label\">Concepts Identified</div></div><div class=\"stat-card\"><div class=\"stat-number\">" + coreCount + "</div><div class=\"stat-label\">Core Weaknesses</div></div><div class=\"stat-card\"><div class=\"stat-number\">" + Object.keys(rulesMap).length + "</div><div class=\"stat-label\">Decision Rules</div></div></div>";
+  var weaknessHTML = concepts.map(function(entry) {
+    var nm = entry[0], dt = entry[1];
+    var pct = Math.round((dt.count / maxCount) * 100);
+    var sc = dt.severity === 3 ? "core" : dt.severity === 2 ? "recurring" : "minor";
+    var sl = dt.severity === 3 ? "Core weakness" : dt.severity === 2 ? "Recurring gap" : "Minor slip";
+    var tags = dt.qtypes.map(function(qt) { return "<span class=\"weakness-tag\">" + qt + "</span>"; }).join("");
+    return "<div class=\"weakness-card\"><div class=\"weakness-card-top\"><span class=\"weakness-name\">" + nm + "</span><div style=\"display:flex;align-items:center;gap:10px;\"><span class=\"weakness-count\">" + dt.count + " error" + (dt.count !== 1 ? "s" : "") + "</span><span class=\"severity-label-badge " + sc + "\">" + sl + "</span></div></div><div class=\"weakness-bar-wrap\"><div class=\"weakness-bar " + sc + "\" style=\"width:" + pct + "%\"></div></div><div class=\"weakness-tags\">" + tags + "</div></div>";
+  }).join("");
+  var maxQT = Math.max.apply(null, Object.values(qtypeMap).concat([1]));
+  var qtypeHTML = Object.entries(qtypeMap).map(function(e) { var p = Math.round((e[1] / maxQT) * 100); return "<div class=\"qtype-card\"><div class=\"qtype-name\">" + e[0] + "</div><div class=\"qtype-count\">" + e[1] + " error" + (e[1] !== 1 ? "s" : "") + "</div><div class=\"qtype-bar-wrap\"><div class=\"qtype-bar\" style=\"width:" + p + "%\"></div></div></div>"; }).join("");
+  var rulesHTML = Object.values(rulesMap).map(function(r) { return "<div class=\"rule-card\"><div class=\"rule-concept\">" + r.concept + "</div><div class=\"rule-text\">" + r.rule + "</div></div>"; }).join("");
+  container.innerHTML = statsHTML +
+    "<div class=\"section\"><div class=\"section-title\">Concepts to Conquer</div><div class=\"weakness-grid\">" + weaknessHTML + "</div></div>" +
+    "<div class=\"section\"><div class=\"section-title\">Errors by Question Type</div><div class=\"qtype-grid\">" + (qtypeHTML || "<p style=\"color:var(--ink-muted);font-size:0.88rem;\">No data.</p>") + "</div></div>" +
+    "<div class=\"section\"><div class=\"section-title\">Your Decision Rules</div><div class=\"rules-list\">" + (rulesHTML || "<p style=\"color:var(--ink-muted);font-size:0.88rem;\">Rules appear as you log more errors.</p>") + "</div></div>";
+}
+
+// ── PRACTICE ──────────────────────────────────────────────
+var currentQuestion = null;
+var selectedAnswer = null;
+var sessionCorrect = 0, sessionIncorrect = 0, sessionTotal = 0;
+var targetConcept = null, targetQType = null;
+
+function getWeakConcepts() {
+  var conceptMap = {};
+  errorLog.forEach(function(entry) {
+    var d = entry.diagnosis;
+    if (!d || !d.concepts) return;
+    d.concepts.forEach(function(c) {
+      if (!conceptMap[c]) conceptMap[c] = { count: 0, severity: 0, qtype: d.question_type || "RC" };
+      conceptMap[c].count++;
+      conceptMap[c].severity = Math.max(conceptMap[c].severity, d.severity || 1);
+    });
+  });
+  return Object.entries(conceptMap).sort(function(a, b) { return b[1].severity !== a[1].severity ? b[1].severity - a[1].severity : b[1].count - a[1].count; });
+}
+
+function initPractice() {
+  var container = document.getElementById("practice-content");
+  if (errorLog.length === 0) {
+    container.innerHTML = "<div class=\"empty-state\"><div class=\"empty-icon\">&#128221;</div><div class=\"empty-title\">No weakness data yet</div><p class=\"empty-sub\">Log some missed questions first.</p><button class=\"btn-primary\" onclick=\"showPage(\'error-log\')\">Go to Error Log</button></div>";
+    return;
+  }
+  var concepts = getWeakConcepts();
+  if (!targetConcept) { targetConcept = concepts[0][0]; targetQType = concepts[0][1].qtype; }
+  var pct = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
+  var opts = concepts.map(function(c) { return "<option value=\"" + c[0] + "\"" + (c[0] === targetConcept ? " selected" : "") + ">" + c[0] + "</option>"; }).join("");
+  container.innerHTML =
+    "<div class=\"score-bar\"><div class=\"score-item\"><div class=\"score-num correct\" id=\"sc-correct\">" + sessionCorrect + "</div><div class=\"score-lbl\">Correct</div></div><div class=\"score-divider\"></div><div class=\"score-item\"><div class=\"score-num incorrect\" id=\"sc-incorrect\">" + sessionIncorrect + "</div><div class=\"score-lbl\">Wrong</div></div><div class=\"score-divider\"></div><div class=\"score-item\"><div class=\"score-num total\" id=\"sc-total\">" + sessionTotal + "</div><div class=\"score-lbl\">Attempted</div></div><div class=\"score-pct\" id=\"sc-pct\">" + (sessionTotal > 0 ? pct + "%" : "—") + "</div></div>" +
+    "<div class=\"target-bar\"><div><div class=\"target-label\">Targeting concept</div><div class=\"target-concept\" id=\"target-display\">" + targetConcept + "</div></div><div class=\"target-actions\"><select id=\"concept-select\" style=\"padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:0.78rem;font-family:Plus Jakarta Sans,sans-serif;cursor:pointer;\">" + opts + "</select><button class=\"btn-ghost\" id=\"btn-generate\">Generate Question</button></div></div>" +
+    "<div id=\"question-area\"></div><div class=\"eval-card\" id=\"eval-card\"></div>";
+  document.getElementById("concept-select").addEventListener("change", function() {
+    var sel = concepts.find(function(c) { return c[0] === this.value; }.bind(this));
+    targetConcept = this.value;
+    targetQType = sel ? sel[1].qtype : "RC";
+    document.getElementById("target-display").textContent = targetConcept;
+  });
+  document.getElementById("btn-generate").addEventListener("click", generateQuestion);
+  generateQuestion();
+}
+
+async function generateQuestion() {
+  var area = document.getElementById("question-area");
+  var evalCard = document.getElementById("eval-card");
+  if (evalCard) evalCard.style.display = "none";
+  selectedAnswer = null; currentQuestion = null;
+  area.innerHTML = "<div style=\"text-align:center;padding:60px 24px;\"><div class=\"spinner-dark\"></div><p style=\"color:var(--ink-muted);font-size:0.88rem;\">Generating a " + targetQType + " question targeting<br><strong>" + targetConcept + "</strong>...</p></div>";
+  var prompt = [
+    "You are an expert GRE question writer. Generate ONE authentic GRE Verbal question targeting: " + targetConcept,
+    "Question type: " + targetQType,
+    "Return ONLY raw JSON (no markdown):",
+    JSON.stringify({ type: "RC", passage: "passage if RC else null", stem: "question stem", choices: [{letter:"A",text:"choice"},{letter:"B",text:"choice"},{letter:"C",text:"choice"},{letter:"D",text:"choice"},{letter:"E",text:"choice"}], correct: "A", concept_tested: targetConcept, difficulty: "hard" }, null, 2),
+    "For RC include a short 80-120 word passage. Make it 160-170V difficulty. Correct answer must be textually defensible."
+  ].join("\n\n");
+  try {
+    var response = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role: "user", content: prompt }] }) });
+    var data = await response.json();
+    var text = data.content[0].text.trim().replace(/```json|```/g, "").trim();
+    currentQuestion = JSON.parse(text);
+    sessionTotal++;
+    document.getElementById("sc-total").textContent = sessionTotal;
+    renderQuestion(currentQuestion);
+  } catch(err) {
+    area.innerHTML = "<div class=\"empty-state\"><div class=\"empty-icon\">&#9888;&#65039;</div><div class=\"empty-title\">Generation failed</div><p class=\"empty-sub\">Please try again.</p><button class=\"btn-primary\" onclick=\"generateQuestion()\">Try Again</button></div>";
+  }
+}
+
+function renderQuestion(q) {
+  var area = document.getElementById("question-area");
+  var choicesHTML = (q.choices || []).map(function(c) { return "<div class=\"choice\" data-letter=\"" + c.letter + "\"><div class=\"choice-letter\">" + c.letter + "</div><div class=\"choice-text\">" + c.text + "</div></div>"; }).join("");
+  area.innerHTML = "<div class=\"question-card\"><div class=\"question-card-header\"><span class=\"qtype-badge\">" + q.type + "</span><span class=\"question-num\">Question #" + sessionTotal + "</span></div><div class=\"question-body\">" + (q.passage ? "<div class=\"passage\">" + q.passage + "</div>" : "") + "<div class=\"question-stem\">" + q.stem + "</div><div class=\"choices\" id=\"choices-wrap\">" + choicesHTML + "</div></div><div class=\"question-footer\"><button class=\"btn-primary\" id=\"btn-submit\" disabled>Submit Answer</button><button class=\"btn-secondary\" id=\"btn-skip\">Skip</button></div></div>";
+  document.querySelectorAll(".choice").forEach(function(el) {
+    el.addEventListener("click", function() {
+      if (this.classList.contains("correct") || this.classList.contains("incorrect")) return;
+      document.querySelectorAll(".choice").forEach(function(c) { c.classList.remove("selected"); });
+      this.classList.add("selected");
+      selectedAnswer = this.dataset.letter;
+      document.getElementById("btn-submit").disabled = false;
+    });
+  });
+  document.getElementById("btn-submit").addEventListener("click", submitAnswer);
+  document.getElementById("btn-skip").addEventListener("click", generateQuestion);
+}
+
+async function submitAnswer() {
+  if (!selectedAnswer || !currentQuestion) return;
+  var btn = document.getElementById("btn-submit");
+  btn.disabled = true;
+  btn.innerHTML = "<span class=\"spinner\"></span>Evaluating...";
+  var isCorrect = selectedAnswer === currentQuestion.correct;
+  document.querySelectorAll(".choice").forEach(function(el) {
+    if (el.dataset.letter === currentQuestion.correct) el.classList.add("correct");
+    else if (el.dataset.letter === selectedAnswer && !isCorrect) el.classList.add("incorrect");
+    el.style.pointerEvents = "none";
+  });
+  if (isCorrect) sessionCorrect++; else sessionIncorrect++;
+  document.getElementById("sc-correct").textContent = sessionCorrect;
+  document.getElementById("sc-incorrect").textContent = sessionIncorrect;
+  document.getElementById("sc-pct").textContent = Math.round((sessionCorrect / sessionTotal) * 100) + "%";
+  var prompt = [
+    "A student answered a GRE " + currentQuestion.type + " question.",
+    "Question: " + currentQuestion.stem,
+    "Student chose: " + selectedAnswer,
+    "Correct answer: " + currentQuestion.correct,
+    "Result: " + (isCorrect ? "CORRECT" : "INCORRECT"),
+    "Concept: " + currentQuestion.concept_tested,
+    "Return ONLY raw JSON:",
+    JSON.stringify({ verdict: "Correct or Incorrect", explanation: "why correct answer is right", why_wrong: "why student choice was wrong or null", reinforcement: "key principle to remember" }, null, 2)
+  ].join("\n");
+  try {
+    var response = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 500, messages: [{ role: "user", content: prompt }] }) });
+    var data = await response.json();
+    var text = data.content[0].text.trim().replace(/```json|```/g, "").trim();
+    var ev = JSON.parse(text);
+    var evalCard = document.getElementById("eval-card");
+    var hc = isCorrect ? "correct" : "incorrect";
+    evalCard.innerHTML = "<div class=\"eval-header " + hc + "\"><span class=\"eval-icon\">" + (isCorrect ? "&#10003;" : "&#10007;") + "</span><span class=\"eval-verdict\">" + (isCorrect ? "Correct" : "Incorrect") + "</span></div><div class=\"eval-body\"><div class=\"eval-section\"><div class=\"eval-label\">Why " + currentQuestion.correct + " is correct</div><div class=\"eval-text\">" + ev.explanation + "</div></div>" + (ev.why_wrong ? "<div class=\"eval-section\"><div class=\"eval-label\">Why your choice was wrong</div><div class=\"eval-text\">" + ev.why_wrong + "</div></div>" : "") + "<div class=\"eval-section\"><div class=\"eval-label\">Key principle</div><div class=\"eval-text\" style=\"border-left:3px solid var(--gold);font-weight:600;\">" + ev.reinforcement + "</div></div><div style=\"margin-top:20px;\"><button class=\"btn-primary\" id=\"btn-next\">Next Question</button></div></div>";
+    evalCard.style.display = "block";
+    evalCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("btn-next").addEventListener("click", function() { initPractice(); });
+    practiceLog.unshift({ id: Date.now(), date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), concept: targetConcept, qtype: currentQuestion.type, correct: isCorrect, question: currentQuestion.stem });
+    localStorage.setItem("gvmt_practice_log", JSON.stringify(practiceLog));
+  } catch(err) {
+    btn.disabled = false; btn.innerHTML = "Submit Answer";
+  }
+}
+
+// ── MASTERY ───────────────────────────────────────────────
+var currentFilter = "all";
+
+function buildConceptData() {
+  var concepts = {};
+  errorLog.forEach(function(entry) {
+    var d = entry.diagnosis;
+    if (!d || !d.concepts) return;
+    d.concepts.forEach(function(c) {
+      if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0 };
+      concepts[c].errors++;
+    });
+  });
+  practiceLog.forEach(function(entry) {
+    var c = entry.concept;
+    if (!c) return;
+    if (!concepts[c]) concepts[c] = { errors: 0, practiced: 0, correct: 0 };
+    concepts[c].practiced++;
+    if (entry.correct) concepts[c].correct++;
+  });
+  return concepts;
+}
+
+function getMasteryStatus(data, isMastered) {
+  if (isMastered) return "mastered";
+  if (data.practiced === 0) return "weak";
+  var acc = data.correct / data.practiced;
+  if (acc >= 0.8) return "strong";
+  if (acc >= 0.5) return "developing";
+  return "weak";
+}
+
+function h(tag, cls, content) {
+  return "<" + tag + (cls ? " class=\"" + cls + "\"" : "") + ">" + content + "</" + tag + ">";
+}
+
+function renderMastery() {
+  var concepts = buildConceptData();
+  var keys = Object.keys(concepts);
+  var statsEl = document.getElementById("mastery-stats");
+  var listEl = document.getElementById("concept-list");
+  if (keys.length === 0) {
+    statsEl.innerHTML = "";
+    listEl.innerHTML = h("div", "empty-state", h("div", "empty-icon", "&#127981;") + h("div", "empty-title", "No data yet") + h("p", "empty-sub", "Log missed questions and practice to build your mastery profile.") + "<button class=\"btn-primary\" onclick=\"showPage(\'error-log\')\">Log a Question</button>");
+    return;
+  }
+  var masteredCount = mastered.length;
+  var totalPracticed = practiceLog.length;
+  var totalCorrect = practiceLog.filter(function(e) { return e.correct; }).length;
+  var overallAcc = totalPracticed > 0 ? Math.round((totalCorrect / totalPracticed) * 100) : 0;
+  statsEl.innerHTML =
+    h("div", "stat-card", h("div", "stat-number gold", keys.length) + h("div", "stat-label", "Concepts Tracked")) +
+    h("div", "stat-card", h("div", "stat-number green", masteredCount) + h("div", "stat-label", "Mastered")) +
+    h("div", "stat-card", h("div", "stat-number", totalPracticed) + h("div", "stat-label", "Questions Practiced")) +
+    h("div", "stat-card", h("div", "stat-number gold", totalPracticed > 0 ? overallAcc + "%" : "-") + h("div", "stat-label", "Overall Accuracy"));
+  keys.sort(function(a, b) {
+    var aM = mastered.indexOf(a) >= 0, bM = mastered.indexOf(b) >= 0;
+    if (aM !== bM) return aM ? 1 : -1;
+    return (concepts[b].errors + concepts[b].practiced) - (concepts[a].errors + concepts[a].practiced);
+  });
+  var filtered = keys.filter(function(k) {
+    var status = getMasteryStatus(concepts[k], mastered.indexOf(k) >= 0);
+    return currentFilter === "all" || status === currentFilter;
+  });
+  if (filtered.length === 0) {
+    listEl.innerHTML = h("div", "empty-state", h("div", "empty-icon", "&#128269;") + h("div", "empty-title", "No concepts in this category"));
+    return;
+  }
+  listEl.innerHTML = filtered.map(function(k) {
+    var data = concepts[k];
+    var isMastered = mastered.indexOf(k) >= 0;
+    var status = getMasteryStatus(data, isMastered);
+    var acc = data.practiced > 0 ? Math.round((data.correct / data.practiced) * 100) : 0;
+    var actionBtn = isMastered
+      ? "<button class=\"btn-unmaster\" data-concept=\"" + k + "\">Reactivate</button>"
+      : (status === "strong" ? "<button class=\"btn-master\" data-concept=\"" + k + "\">Mark Mastered</button>" : "");
+    return h("div", "concept-card" + (isMastered ? " mastered" : ""),
+      h("div", "concept-card-top", h("span", "concept-name", k) + h("div", "concept-meta", h("span", "accuracy-text", data.practiced > 0 ? acc + "% accuracy" : "Not yet practiced") + h("span", "status-badge " + status, status))) +
+      h("div", "progress-wrap", "<div class=\"progress-bar " + status + "\" style=\"width:" + (data.practiced > 0 ? acc : 0) + "%\"></div>") +
+      h("div", "concept-footer", h("div", "concept-stats", h("div", "concept-stat", "Errors: " + h("span", "", data.errors)) + h("div", "concept-stat", "Practiced: " + h("span", "", data.practiced)) + h("div", "concept-stat", "Correct: " + h("span", "", data.correct))) + actionBtn)
+    );
+  }).join("");
+  document.querySelectorAll(".btn-master").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var c = this.getAttribute("data-concept");
+      if (mastered.indexOf(c) < 0) mastered.push(c);
+      localStorage.setItem("gvmt_mastered", JSON.stringify(mastered));
+      renderMastery();
+    });
+  });
+  document.querySelectorAll(".btn-unmaster").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var c = this.getAttribute("data-concept");
+      mastered = mastered.filter(function(x) { return x !== c; });
+      localStorage.setItem("gvmt_mastered", JSON.stringify(mastered));
+      renderMastery();
+    });
+  });
+}
+
+document.querySelectorAll(".filter-tab").forEach(function(tab) {
+  tab.addEventListener("click", function() {
+    document.querySelectorAll(".filter-tab").forEach(function(t) { t.classList.remove("active"); });
+    this.classList.add("active");
+    currentFilter = this.getAttribute("data-filter");
+    renderMastery();
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────
+renderLog();
+</script>
+</body>
+</html>
